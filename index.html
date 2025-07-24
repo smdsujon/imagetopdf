@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO: Optimized Title Tag for Fiverr Sellers -->
+    <title>Fiverr Portfolio PDF Maker | Convert Images to PDF for Gigs - Free & Online</title>
+    <!-- SEO: Meta Description -->
+    <meta name="description" content="Quickly create professional PDF portfolios for your Fiverr gigs. Drag, reorder, and convert images to PDF easily and for free, right in your browser – no server needed!">
+    <meta name="keywords" content="Fiverr portfolio, image to PDF, PDF converter, online PDF tool, freelancer PDF, gig images, portfolio maker, free PDF, client-side PDF, ছবি থেকে পিডিএফ, ফাইভার পোর্টফোলিও, ফ্রিল্যান্সার টুল">
+
+    <!-- jsPDF library for client-side PDF generation -->
+    <!-- This library allows the browser to create and save PDF files directly. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Inter', Arial, sans-serif; /* Using Inter for a modern look */
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5; /* Light gray background */
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for longer content */
+            min-height: 100vh;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+
+        /* Main Container for the Application */
+        .container {
+            max-width: 900px;
+            width: 100%; /* Ensure it takes full width on smaller screens */
+            margin: 20px auto; /* Adjust margin for better centering */
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px; /* More rounded corners */
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1); /* Enhanced shadow for depth */
+            box-sizing: border-box;
+        }
+
+        /* Heading Styles */
+        h1 {
+            text-align: center;
+            color: #0056b3; /* Professional blue */
+            margin-bottom: 20px;
+            font-size: 2.2em; /* Larger heading */
+            font-weight: 700;
+        }
+
+        h3 {
+            text-align: center;
+            color: #444;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        /* Input Section Layout */
+        .input-section {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 25px; /* Increased gap */
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 280px; /* Ensure inputs are wide enough */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Input and Select Field Styling */
+        input[type="file"],
+        select,
+        input[type="number"] {
+            display: block;
+            margin-bottom: 15px;
+            padding: 12px; /* More padding for better touch targets */
+            border: 1px solid #d1d8e0; /* Softer border */
+            border-radius: 6px; /* Slightly more rounded */
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #fdfdfd;
+            cursor: pointer;
+            font-size: 1em;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="file"]:focus,
+        select:focus,
+        input[type="number"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Focus highlight */
+            outline: none;
+        }
+
+        /* Custom Size Inputs */
+        #customSizeInputs {
+            display: flex; /* Use flex for side-by-side inputs */
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+        }
+        #customSizeInputs label {
+            margin-bottom: 0; /* Adjust label margin */
+            white-space: nowrap; /* Prevent label from wrapping */
+        }
+        #customSizeInputs input[type="number"] {
+            flex-grow: 1; /* Allow inputs to grow */
+            margin-bottom: 0; /* Remove bottom margin */
+        }
+
+
+        /* Generate PDF Button Styling */
+        button {
+            background-color: #28a745; /* Vibrant green for action */
+            color: white;
+            padding: 14px 25px; /* Larger padding */
+            border: none;
+            border-radius: 8px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.1em; /* Slightly larger font */
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2); /* Soft shadow */
+        }
+
+        button:hover {
+            background-color: #218838; /* Darker green on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0); /* Press down effect */
+            box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
+        }
+
+        /* Image Preview Container */
+        #image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px; /* Increased gap between cards */
+            min-height: 150px; /* Increased height for better visual space */
+            border: 2px dashed #a7d9ff; /* Light blue dashed border */
+            background-color: #e8f7ff; /* Very light blue background */
+            padding: 20px;
+            border-radius: 10px;
+            justify-content: center; /* Center items when few */
+            align-items: center; /* Center items vertically when few */
+            font-style: italic;
+            color: #777;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        #image-preview-container.drag-over {
+            border-color: #007bff; /* Highlight border on drag over */
+            background-color: #cce5ff; /* Lighter blue background on drag over */
+        }
+
+        /* Individual Image Card */
+        .image-card {
+            border: 1px solid #b3e0ff; /* Soft blue border */
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            background-color: #f7fcff; /* Very light blue background for cards */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: grab;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Smooth animation for moves and fades */
+            width: 160px; /* Consistent width */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .image-card:hover {
+            transform: translateY(-4px); /* More pronounced lift */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .image-card.dragging {
+            opacity: 0.6; /* Slightly more transparent when dragging */
+            border: 2px dashed #007bff;
+            background-color: #dae8f5;
+        }
+
+        /* Animation for removing an image */
+        .image-card.fade-out {
+            opacity: 0;
+            transform: scale(0.8); /* Shrink slightly as it fades */
+        }
+
+        .image-card img {
+            max-width: 100%;
+            height: 100px; /* Fixed height for consistent previews */
+            object-fit: contain; /* Ensures image fits without cropping */
+            display: block;
+            margin: 0 auto 10px;
+            border-radius: 5px;
+            border: 1px solid #eee; /* Light border around image */
+        }
+
+        .image-card p {
+            font-size: 0.9em;
+            margin: 0 0 10px 0; /* Adjusted margin */
+            word-break: break-all; /* Allow long filenames to break */
+            line-height: 1.3;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Button group for image card actions */
+        .image-card-actions {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px; /* Space above buttons */
+            gap: 5px; /* Space between buttons */
+        }
+
+        /* Remove Button on Image Card */
+        .image-card .remove-btn {
+            background-color: #dc3545; /* Red for remove */
+            color: white;
+            border: none;
+            border-radius: 4px; /* Slightly more rounded */
+            padding: 6px 10px; /* Reduced padding */
+            cursor: pointer;
+            font-size: 0.8em; /* Smaller font size */
+            transition: background-color 0.2s ease;
+            flex-grow: 1; /* Allow buttons to grow and fill space */
+            box-shadow: none; /* No shadow for small buttons */
+            transform: none; /* No lift effect for small buttons */
+        }
+
+        .image-card .remove-btn:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+
+        /* Move Buttons on Image Card (Smaller) */
+        .image-card .move-btn {
+            background-color: #007bff; /* Blue for move buttons */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 8px; /* Smaller padding for move buttons */
+            cursor: pointer;
+            font-size: 0.8em; /* Smaller font size */
+            transition: background-color 0.2s ease;
+            flex-grow: 0; /* Do not grow, use content size */
+            box-shadow: none;
+            transform: none;
+            min-width: 30px; /* Ensure a minimum width for the arrow buttons */
+        }
+
+        .image-card .move-btn:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        /* Message Display Area */
+        #message {
+            text-align: center;
+            margin-top: 25px;
+            padding: 12px; /* More padding */
+            border-radius: 8px; /* Rounded corners */
+            font-weight: bold;
+            display: none; /* Hidden by default */
+            font-size: 1.05em;
+        }
+
+        #message.success {
+            background-color: #d4edda; /* Light green */
+            color: #155724; /* Dark green text */
+            border: 1px solid #c3e6cb;
+        }
+        #message.error {
+            background-color: #f8d7da; /* Light red */
+            color: #721c24; /* Dark red text */
+            border: 1px solid #f5c6cb;
+        }
+        #message.info {
+            background-color: #cfe2ff; /* Light blue */
+            color: #052c65; /* Dark blue text */
+            border: 1px solid #b6d4fe;
+        }
+        #message.warning {
+            background-color: #fff3cd; /* Light yellow */
+            color: #664d03; /* Dark yellow text */
+            border: 1px solid #ffecb5;
+        }
+
+        /* Introductory Warning Text */
+        .warning-text {
+            color: #007bff; /* Blue for emphasis */
+            font-size: 1em;
+            margin-top: -10px; /* Pull closer to heading */
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px auto;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .input-section {
+                flex-direction: column; /* Stack inputs on small screens */
+                gap: 15px;
+            }
+            .input-group {
+                min-width: unset; /* Remove min-width to allow full flexibility */
+                width: 100%;
+            }
+            #customSizeInputs {
+                flex-direction: column; /* Stack custom size inputs */
+                align-items: flex-start;
+            }
+            #customSizeInputs input[type="number"] {
+                width: 100%;
+            }
+            .image-card {
+                width: calc(50% - 15px); /* Two cards per row on small screens */
+            }
+            .image-card .move-btn {
+                padding: 6px 6px; /* Even smaller padding on mobile */
+                font-size: 0.75em;
+            }
+            .image-card .remove-btn {
+                padding: 6px 8px;
+                font-size: 0.75em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .image-card {
+                width: 100%; /* One card per row on very small screens */
+            }
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SEO: Main Heading with Keywords -->
+        <h1>📸 Convert Images to PDF </h1>
+        <p class="warning-text">
+            Create stunning PDF portfolios for your Fiverr services. All conversions happen directly in your browser, ensuring privacy and speed – no server needed! 🚀
+        </p>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="imageUpload">Upload Your Gig Images:</label>
+                <input type="file" id="imageUpload" accept="image/jpeg, image/png, image/gif, image/webp" multiple>
+            </div>
+            <div class="input-group">
+                <label for="pageSize">Select PDF Page Size:</label>
+                <select id="pageSize">
+                    <option value="A4">A4 (210 x 297 mm)</option>
+                    <option value="Letter">Letter (216 x 279 mm)</option>
+                    <option value="Legal">Legal (216 x 356 mm)</option>
+                    <option value="Tabloid">Tabloid (279 x 432 mm)</option>
+                    <option value="Custom">Custom Size</option>
+                </select>
+                <div id="customSizeInputs" style="display: none;">
+                    <label for="customWidth">Width (mm):</label>
+                    <input type="number" id="customWidth" value="210" min="50">
+                    <label for="customHeight">Height (mm):</label>
+                    <input type="number" id="customHeight" value="297" min="50">
+                </div>
+            </div>
+        </div>
+
+        <h3>Drag & Drop or Use Buttons to Reorder Your Portfolio Images:</h3>
+        <div id="image-preview-container">
+            No images uploaded yet. Drag and drop images here or use the upload button above.
+        </div>
+
+        <button id="generatePdfBtn">Generate PDF Portfolio</button>
+
+        <!-- Message display area for user feedback -->
+        <p id="message"></p>
+    </div>
+
+    <script>
+        // Ensure jsPDF library is loaded and accessible
+        const { jsPDF } = window.jspdf;
+
+        // Get references to DOM elements
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const generatePdfBtn = document.getElementById('generatePdfBtn');
+        const pageSizeSelect = document.getElementById('pageSize');
+        const messageElement = document.getElementById('message');
+        const customSizeInputs = document.getElementById('customSizeInputs');
+        const customWidthInput = document.getElementById('customWidth');
+        const customHeightInput = document.getElementById('customHeight');
+
+        let uploadedFiles = []; // Array to store File objects in their current order
+        let draggedItem = null; // To keep track of the image card being dragged
+
+        // --- Helper Function: Update Placeholder Message in Preview Container ---
+        function updatePlaceholderMessage() {
+            if (uploadedFiles.length === 0) {
+                imagePreviewContainer.innerHTML = 'No images uploaded yet. Drag and drop images here or use the upload button above.';
+                imagePreviewContainer.style.justifyContent = 'center';
+                imagePreviewContainer.style.alignItems = 'center';
+            } else {
+                // If images are present, allow flexible alignment for wrapping
+                imagePreviewContainer.style.justifyContent = 'flex-start';
+                imagePreviewContainer.style.alignItems = 'flex-start';
+            }
+        }
+
+        // --- Helper Function: Display User Messages ---
+        function showMessage(text, type = 'info') {
+            messageElement.textContent = text;
+            messageElement.className = `message ${type}`; // Apply CSS class for styling
+            messageElement.style.display = 'block'; // Make message visible
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // --- Event Listener: Handle Image Upload ---
+        imageUpload.addEventListener('change', (event) => {
+            const files = Array.from(event.target.files); // Convert FileList to Array
+            files.forEach(file => {
+                // Check if the uploaded file is an image
+                if (file.type.startsWith('image/')) {
+                    uploadedFiles.push(file); // Add valid image file to our array
+                } else {
+                    showMessage(`File "${file.name}" is not a supported image type and was skipped.`, 'warning');
+                }
+            });
+            renderImages(); // Re-render the image previews
+            imageUpload.value = ''; // Clear the input field to allow re-uploading same files
+        });
+
+        // --- Function: Render Images in the Preview Container ---
+        function renderImages() {
+            imagePreviewContainer.innerHTML = ''; // Clear existing previews
+            if (uploadedFiles.length === 0) {
+                updatePlaceholderMessage(); // Show placeholder if no images
+                return;
+            }
+
+            uploadedFiles.forEach((file, index) => {
+                const reader = new FileReader(); // FileReader to read file content
+                reader.onload = (e) => {
+                    const imgUrl = e.target.result; // Data URL of the image
+                    const imageCard = document.createElement('div');
+                    imageCard.classList.add('image-card');
+                    imageCard.setAttribute('draggable', 'true'); // Make card draggable
+                    imageCard.fileObject = file; // Store the actual File object on the card element
+                    imageCard.dataset.index = index; // Store current index for button moves
+
+                    // Create the HTML structure for an image card with new buttons
+                    imageCard.innerHTML = `
+                        <img src="${imgUrl}" alt="${file.name}">
+                        <p title="${file.name}">${file.name.length > 20 ? file.name.substring(0, 17) + '...' : file.name}</p>
+                        <div class="image-card-actions">
+                            <button class="move-btn move-left-btn" data-index="${index}">←</button>
+                            <button class="remove-btn" data-file-name="${file.name}">Remove</button>
+                            <button class="move-btn move-right-btn" data-index="${index}">→</button>
+                        </div>
+                    `;
+                    imagePreviewContainer.appendChild(imageCard); // Add card to container
+                };
+                reader.readAsDataURL(file); // Read file as Data URL
+            });
+            updatePlaceholderMessage(); // Update placeholder (will hide it if images are present)
+        }
+
+        // --- Drag and Drop Logic: Start Drag ---
+        imagePreviewContainer.addEventListener('dragstart', (e) => {
+            // Ensure only image cards are draggable
+            if (e.target.classList.contains('image-card')) {
+                draggedItem = e.target;
+                e.dataTransfer.effectAllowed = 'move'; // Visual feedback for move operation
+                // Add 'dragging' class after a short delay to avoid flicker
+                setTimeout(() => {
+                    draggedItem.classList.add('dragging');
+                }, 0);
+            }
+        });
+
+        // --- Drag and Drop Logic: Drag Over ---
+        imagePreviewContainer.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Essential to allow dropping
+            imagePreviewContainer.classList.add('drag-over'); // Add visual feedback
+            const draggable = document.querySelector('.dragging');
+
+            if (!draggable) return; // Exit if no item is being dragged
+
+            // Determine the element to insert before
+            const afterElement = getDragAfterElement(imagePreviewContainer, e.clientX, e.clientY);
+
+            if (afterElement === null) {
+                // If no element is found after (e.g., dragging to the very end)
+                imagePreviewContainer.appendChild(draggable);
+            } else {
+                // Insert the dragged item before the determined 'afterElement'
+                imagePreviewContainer.insertBefore(draggable, afterElement);
+            }
+        });
+
+        // --- Drag and Drop Logic: Drag Leave ---
+        imagePreviewContainer.addEventListener('dragleave', () => {
+            imagePreviewContainer.classList.remove('drag-over'); // Remove visual feedback
+        });
+
+        // --- Drag and Drop Logic: Drop ---
+        imagePreviewContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imagePreviewContainer.classList.remove('drag-over'); // Remove visual feedback
+        });
+
+        // --- Drag and Drop Logic: Drag End ---
+        imagePreviewContainer.addEventListener('dragend', () => {
+            if (draggedItem) {
+                draggedItem.classList.remove('dragging'); // Remove dragging class
+                draggedItem = null;
+                updateFilesOrder(); // Update the `uploadedFiles` array based on the new DOM order
+            }
+        });
+
+        // --- Refined Helper Function for Drag and Drop: Determine Drop Position ---
+        // This function finds the element that the dragged item should be inserted *before*.
+        // It considers both X and Y coordinates for a more intuitive reordering in a flex-wrap layout.
+        function getDragAfterElement(container, x, y) {
+            const draggableElements = [...container.querySelectorAll('.image-card:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offsetFromCenterY = y - (box.top + box.height / 2);
+
+                // If the mouse is vertically within the bounds of this child (or slightly above/below)
+                // AND it's horizontally to the left of its center
+                // AND it's closer than the previously found 'closest' element.
+                // This logic aims to find the element that the dragged item should precede.
+                if (offsetFromCenterY < 0 && offsetFromCenterY > closest.offsetY && x < box.right) {
+                    return { offsetY: offsetFromCenterY, element: child };
+                } else if (offsetFromCenterY >= 0 && offsetFromCenterY < closest.offsetY && x < box.right) {
+                    // This handles cases where dragging down into a new row, and the mouse is below the current element's center
+                    return { offsetY: offsetFromCenterY, element: child };
+                }
+                return closest;
+
+            }, { offsetY: Number.POSITIVE_INFINITY, element: null }).element; // Initialize with a very large offset
+        }
+
+
+        // --- Function: Update `uploadedFiles` Array Based on Current DOM Order ---
+        function updateFilesOrder() {
+            const currentOrderElements = Array.from(imagePreviewContainer.querySelectorAll('.image-card'));
+            // Map the DOM elements back to their original File objects
+            uploadedFiles = currentOrderElements.map(card => card.fileObject);
+        }
+
+        // --- Function: Move Image Left/Right using Buttons ---
+        function moveImage(currentIndex, direction) {
+            const newIndex = currentIndex + direction;
+
+            // Check for valid new index
+            if (newIndex >= 0 && newIndex < uploadedFiles.length) {
+                // Swap elements in the array
+                const [movedFile] = uploadedFiles.splice(currentIndex, 1); // Remove from current position
+                uploadedFiles.splice(newIndex, 0, movedFile); // Insert at new position
+                renderImages(); // Re-render the display to reflect the new order
+            }
+        }
+
+        // --- Event Listener: Handle Image Removal and Move Buttons ---
+        imagePreviewContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-btn')) {
+                const cardToRemove = e.target.closest('.image-card');
+                if (cardToRemove && cardToRemove.fileObject) {
+                    // Add fade-out class to trigger animation
+                    cardToRemove.classList.add('fade-out');
+                    // Remove the card from DOM and array after animation
+                    setTimeout(() => {
+                        uploadedFiles = uploadedFiles.filter(file => file !== cardToRemove.fileObject);
+                        renderImages(); // Re-render to update the display and data-indices
+                        showMessage(`Image "${cardToRemove.fileObject.name}" removed.`, 'info');
+                    }, 300); // Match CSS transition duration
+                }
+            } else if (e.target.classList.contains('move-left-btn')) {
+                const currentIndex = parseInt(e.target.dataset.index);
+                moveImage(currentIndex, -1); // Move left
+            } else if (e.target.classList.contains('move-right-btn')) {
+                const currentIndex = parseInt(e.target.dataset.index);
+                moveImage(currentIndex, 1); // Move right
+            }
+        });
+
+        // --- Event Listener: Handle Custom Page Size Selection ---
+        pageSizeSelect.addEventListener('change', () => {
+            if (pageSizeSelect.value === 'Custom') {
+                customSizeInputs.style.display = 'flex'; // Show custom size inputs using flex for alignment
+            } else {
+                customSizeInputs.style.display = 'none'; // Hide custom size inputs
+            }
+        });
+
+        // --- Event Listener: Generate PDF Button Click ---
+        generatePdfBtn.addEventListener('click', async () => {
+            if (uploadedFiles.length === 0) {
+                showMessage('Please upload images first to create your PDF portfolio! ☝️', 'error');
+                return;
+            }
+
+            showMessage('Generating PDF... This may take a moment depending on image size and quantity. ⏳', 'info');
+
+            try {
+                // Initialize jsPDF document
+                const doc = new jsPDF();
+                let width, height; // Variables for PDF page dimensions
+
+                const selectedPageSize = pageSizeSelect.value;
+                if (selectedPageSize === 'Custom') {
+                    width = parseFloat(customWidthInput.value);
+                    height = parseFloat(customHeightInput.value);
+
+                    // Validate custom dimensions
+                    if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
+                        showMessage('Please enter valid positive numbers for custom width and height (in mm).', 'error');
+                        return;
+                    }
+                    // Set custom page format
+                    doc.setProperties({
+                        unit: 'mm', // Set unit to millimeters
+                        format: [width, height]
+                    });
+                } else {
+                    // Set standard page format
+                    doc.setProperties({
+                        unit: 'mm',
+                        format: selectedPageSize.toLowerCase() // jsPDF accepts lowercase format names
+                    });
+                }
+
+                // Get the actual page dimensions (after setting format)
+                const docWidth = doc.internal.pageSize.getWidth();
+                const docHeight = doc.internal.pageSize.getHeight();
+                const padding = 10; // 10mm padding on each side
+
+                // Loop through each uploaded image file
+                for (let i = 0; i < uploadedFiles.length; i++) {
+                    const file = uploadedFiles[i];
+
+                    // Skip if not an image (though already filtered on upload)
+                    if (!file.type.startsWith('image/')) {
+                        console.warn(`Skipping non-image file during PDF generation: ${file.name}`);
+                        continue;
+                    }
+
+                    const reader = new FileReader();
+                    // Use a Promise to ensure each image is fully loaded before adding to PDF
+                    await new Promise((resolve, reject) => {
+                        reader.onload = async (e) => {
+                            const imgData = e.target.result; // Base64 image data
+                            const img = new Image(); // Create a new Image object
+
+                            img.onload = () => {
+                                const imgWidth = img.width;
+                                const imgHeight = img.height;
+
+                                // Calculate aspect ratio
+                                const aspectRatio = imgWidth / imgHeight;
+
+                                // Calculate maximum available space for the image on the PDF page
+                                const availableWidth = docWidth - (padding * 2);
+                                const availableHeight = docHeight - (padding * 2);
+
+                                let finalImgWidth = availableWidth;
+                                let finalImgHeight = finalImgWidth / aspectRatio;
+
+                                // If image height exceeds available height, scale based on height
+                                if (finalImgHeight > availableHeight) {
+                                    finalImgHeight = availableHeight;
+                                    finalImgWidth = finalImgHeight * aspectRatio;
+                                }
+
+                                // Center the image on the page
+                                const x = (docWidth - finalImgWidth) / 2;
+                                const y = (docHeight - finalImgHeight) / 2;
+
+                                // Add a new page for each image, except for the first one
+                                if (i > 0) {
+                                    doc.addPage();
+                                }
+
+                                // Add the image to the PDF document
+                                doc.addImage(imgData, file.type.split('/')[1].toUpperCase(), x, y, finalImgWidth, finalImgHeight);
+                                resolve(); // Resolve the promise once image is added
+                            };
+                            img.onerror = (error) => {
+                                console.error('Error loading image for PDF:', file.name, error);
+                                showMessage(`Failed to load image "${file.name}". It might be corrupted or too large. Skipping this image.`, 'error');
+                                reject(error); // Reject the promise on error
+                            };
+                            img.src = imgData; // Set image source to trigger loading
+                        };
+                        reader.readAsDataURL(file); // Read the file as a Data URL (Base64)
+                    });
+                }
+
+                // Save the generated PDF with a descriptive filename
+                doc.save('Fiverr_Portfolio.pdf');
+                showMessage('PDF portfolio generated successfully! 🎉 Check your downloads.', 'success');
+
+                // Clear uploaded files and update UI after successful generation
+                uploadedFiles = [];
+                renderImages();
+            } catch (error) {
+                console.error('Error during PDF generation:', error);
+                showMessage('Failed to generate PDF. Please try again. If the issue persists, try smaller images or fewer files. 🙁', 'error');
+            }
+        });
+
+        // Initial call to set the placeholder message when the page loads
+        updatePlaceholderMessage();
+    </script>
+</body>
+</html>
